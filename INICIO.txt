@@ -1,0 +1,32 @@
+╔════════════════════════════════════════════════════════════╗
+║           JAVAES - INICIO RÁPIDO                           ║
+╚════════════════════════════════════════════════════════════╝
+
+IMPORTANTE: Siga estos pasos en orden
+
+1️⃣  COMPILAR EL PROYECTO
+   Ejecute: compilar.bat
+   (Esto genera las clases ANTLR y compila todo)
+
+2️⃣  EJECUTAR EL PROGRAMA
+   Ejecute: ejecutar.bat
+   
+   O manualmente:
+   cd build
+   java -cp ".;..\antlr-4.9.2-complete.jar" Main
+
+⚠️  NO EJECUTAR Main.java directamente desde Eclipse/IDE sin compilar primero
+
+═══════════════════════════════════════════════════════════
+
+📂 Estructura:
+   grammar/          → Gramáticas ANTLR4
+   src/              → Código Java
+   gen/              → Clases generadas por ANTLR
+   build/            → Clases compiladas
+   resources/        → Ejemplos .javaes
+   docs/             → Documentación
+
+═══════════════════════════════════════════════════════════
+
+📖 Ver instrucciones detalladas en: docs/MANUAL.md

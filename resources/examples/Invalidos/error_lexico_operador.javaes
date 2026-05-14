@@ -1,0 +1,4 @@
+entero procesar(entero x) {
+    entero y = x @ 10;
+    retornar y;
+}

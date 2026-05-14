@@ -1,0 +1,5 @@
+entero sumar(entero a, entero b) {
+    retornar a + b;
+}
+
+entero r = sumar(3,4);

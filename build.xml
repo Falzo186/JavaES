@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<project name="JAVAES" default="help">
+    <target name="help">
+        <echo>Usar compilar.bat para generar y compilar el proyecto en Windows.</echo>
+    </target>
+</project>

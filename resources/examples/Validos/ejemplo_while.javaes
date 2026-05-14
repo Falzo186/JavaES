@@ -1,0 +1,9 @@
+entero sumarHasta(entero limite) {
+    entero suma = 0;
+    entero i = 0;
+    mientras (i < limite) {
+        suma = suma + i;
+        i = i + 1;
+    }
+    retornar suma;
+}

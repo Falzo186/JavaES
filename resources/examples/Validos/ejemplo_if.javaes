@@ -1,0 +1,8 @@
+entero procesarNumero(entero n) {
+    si (n > 0) {
+        n = n - 1;
+    } sino {
+        n = 0;
+    }
+    retornar n;
+}

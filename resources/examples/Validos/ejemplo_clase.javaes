@@ -1,0 +1,9 @@
+clase Punto {
+    entero x;
+    entero y;
+    entero mover(entero dx, entero dy) {
+        x = x + dx;
+        y = y + dy;
+        retornar 0;
+    }
+}
