@@ -1,0 +1,49 @@
+// Ejemplo que demuestra control de flujo y manejo de excepciones
+
+clase Procesador {
+    publico entero procesar(entero valor) {
+        entero resultado = 0;
+        
+        // Cambiar con casos
+        cambiar (valor) {
+            caso 1:
+                resultado = 10;
+                romper;
+            caso 2:
+                resultado = 20;
+                romper;
+            defecto:
+                resultado = 0;
+                romper;
+        }
+        
+        retornar resultado;
+    }
+    
+    publico vacio iterarConPara() {
+        para (entero i = 0; i < 5; i++) {
+            si (i == 2) {
+                continuar;
+            }
+            imprimir(i);
+        }
+    }
+    
+    publico vacio hacerMientras() {
+        entero contador = 0;
+        hacer {
+            contador++;
+        } mientras (contador < 10);
+    }
+    
+    publico vacio manejarExcepciones() {
+        intentar {
+            entero valor = 10;
+            entero resultado = valor / 0;
+        } capturar (cadena error) {
+            imprimir("Error capturado");
+        } finalmente {
+            imprimir("Finalizado");
+        }
+    }
+}

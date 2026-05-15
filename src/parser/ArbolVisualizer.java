@@ -64,44 +64,128 @@ public class ArbolVisualizer {
     
     private static String mapearTokenId(int tokenId) {
         // Mapeo directo de IDs a nombres en español academico (basado en JavaESLexer.tokens)
+        // Actualizado con token set completo expandido
         switch(tokenId) {
+            // Tipos
             case 4: return "ENTERO_TIPO";
             case 5: return "DECIMAL_TIPO";
             case 6: return "CADENA_TIPO";
             case 7: return "BOOLEANO_TIPO";
             case 8: return "VACIO_TIPO";
-            case 9: return "SI";
-            case 10: return "SINO";
-            case 11: return "MIENTRAS";
-            case 12: return "RETORNAR";
-            case 13: return "CLASE";
-            case 14: return "VERDADERO";
-            case 15: return "FALSO";
-            case 16: return "PUBLICO";
-            case 17: return "PRIVADO";
-            case 18: return "CADENA";
-            case 19: return "ENTERO";
-            case 20: return "DECIMAL";
-            case 21: return "IDENTIFICADOR";
-            case 22: return "SUMA";
-            case 23: return "RESTA";
-            case 24: return "MULTIPLICACION";
-            case 25: return "DIVISION";
-            case 26: return "MODULO";
-            case 27: return "IGUALDAD";
-            case 28: return "DESIGUALDAD";
-            case 29: return "MAYOR_QUE";
-            case 30: return "MENOR_QUE";
-            case 31: return "MAYOR_IGUAL_QUE";
-            case 32: return "MENOR_IGUAL_QUE";
-            case 33: return "ASIGNACION";
-            case 34: return "PUNTO_Y_COMA";
-            case 35: return "COMA";
-            case 36: return "PARENTESIS_ABIERTO";
-            case 37: return "PARENTESIS_CERRADO";
-            case 38: return "LLAVE_ABIERTA";
-            case 39: return "LLAVE_CERRADA";
-            case 40: return "ERROR_LEXICO";
+            case 9: return "CARACTER_TIPO";
+            
+            // Control de flujo
+            case 10: return "SI";
+            case 11: return "SINO";
+            case 12: return "MIENTRAS";
+            case 13: return "PARA";
+            case 14: return "HACER";
+            case 15: return "CAMBIAR";
+            case 16: return "CASO";
+            case 17: return "DEFECTO";
+            case 18: return "ROMPER";
+            case 19: return "CONTINUAR";
+            case 20: return "RETORNAR";
+            
+            // Excepciones
+            case 21: return "INTENTAR";
+            case 22: return "CAPTURAR";
+            case 23: return "FINALMENTE";
+            case 24: return "LANZAR";
+            
+            // Clases y objetos
+            case 25: return "CLASE";
+            case 26: return "INTERFAZ";
+            case 27: return "NUEVO";
+            case 28: return "ESTE";
+            case 29: return "SUPER";
+            
+            // Modificadores
+            case 30: return "PUBLICO";
+            case 31: return "PRIVADO";
+            case 32: return "PROTEGIDO";
+            case 33: return "ESTATICO";
+            case 34: return "FINAL";
+            
+            // Valores especiales
+            case 35: return "VERDADERO";
+            case 36: return "FALSO";
+            case 37: return "NULO";
+            
+            // Importación y paquetes
+            case 38: return "IMPORTAR";
+            case 39: return "PAQUETE";
+            
+            // Entrada/Salida
+            case 40: return "IMPRIMIR";
+            case 41: return "LEER";
+            
+            // Literales
+            case 42: return "CADENA";
+            case 43: return "CARACTER";
+            case 44: return "DECIMAL_CIENTIFICO";
+            case 45: return "DECIMAL";
+            case 46: return "ENTERO";
+            case 47: return "ENTERO_HEX";
+            case 48: return "ENTERO_OCTAL";
+            
+            // Identificador
+            case 49: return "IDENTIFICADOR";
+            
+            // Operadores aritméticos
+            case 50: return "INCREMENTO";
+            case 51: return "DECREMENTO";
+            case 52: return "SUMA";
+            case 53: return "RESTA";
+            case 54: return "MULTIPLICACION";
+            case 55: return "DIVISION";
+            case 56: return "MODULO";
+            
+            // Operadores relacionales
+            case 57: return "IGUALDAD";
+            case 58: return "DESIGUALDAD";
+            case 59: return "MAYOR_IGUAL_QUE";
+            case 60: return "MENOR_IGUAL_QUE";
+            case 61: return "MAYOR_QUE";
+            case 62: return "MENOR_QUE";
+            
+            // Operadores lógicos
+            case 63: return "Y_LOGICO";
+            case 64: return "O_LOGICO";
+            case 65: return "NEGACION";
+            
+            // Operadores de asignación
+            case 66: return "SUMA_ASIGNACION";
+            case 67: return "RESTA_ASIGNACION";
+            case 68: return "MULTIPLICACION_ASIGNACION";
+            case 69: return "DIVISION_ASIGNACION";
+            case 70: return "MODULO_ASIGNACION";
+            case 71: return "ASIGNACION";
+            
+            // Delimitadores
+            case 72: return "PARENTESIS_ABIERTO";
+            case 73: return "PARENTESIS_CERRADO";
+            case 74: return "LLAVE_ABIERTA";
+            case 75: return "LLAVE_CERRADA";
+            case 76: return "CORCHETE_ABIERTO";
+            case 77: return "CORCHETE_CERRADO";
+            case 78: return "PUNTO_Y_COMA";
+            case 79: return "COMA";
+            case 80: return "PUNTO";
+            case 81: return "DOS_PUNTOS";
+            case 82: return "DOS_PUNTOS_DOBLE";
+            case 83: return "FLECHA";
+            case 84: return "ARROBA";
+            
+            // Operadores especiales
+            case 85: return "INTERROGACION";
+            case 86: return "AMPERSAND";
+            case 87: return "PIPE";
+            case 88: return "CIRCUNFLEJO";
+            case 89: return "TILDE";
+            
+            // Error
+            case 90: return "ERROR_LEXICO";
             case -1: return "EOF";
             default: return null;
         }

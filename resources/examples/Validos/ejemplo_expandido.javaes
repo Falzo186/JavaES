@@ -1,0 +1,55 @@
+// Ejemplo que demuestra el lexer expandido con nuevos tokens
+
+entero suma(entero x, entero y) {
+    retornar x + y;
+}
+
+vacio procesarNumeros() {
+    entero contador = 0;
+    entero total = 0;
+    
+    // Operadores de incremento y asignación compuesta
+    contador++;
+    total += 10;
+    total -= 5;
+    total *= 2;
+    total /= 3;
+    
+    // Operadores lógicos
+    si (contador > 0 && total < 100) {
+        entero resultado = suma(5, 3);
+    }
+    sino {
+        entero resultado = 0;
+    }
+    
+    // Bucle con incremento
+    mientras (contador < 10) {
+        total += contador;
+        contador++;
+    }
+    
+    // Valores especiales
+    booleano activo = verdadero;
+    cadena mensaje = "Procesando";
+    entero nulo_valor = nulo;
+}
+
+entero operacionesLogicas() {
+    booleano a = verdadero;
+    booleano b = falso;
+    
+    si (a && b) {
+        retornar 1;
+    }
+    
+    si (a || b) {
+        retornar 2;
+    }
+    
+    si (!a) {
+        retornar 3;
+    }
+    
+    retornar 0;
+}

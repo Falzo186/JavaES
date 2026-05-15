@@ -9,7 +9,7 @@
 ### ⚠️ IMPORTANTE
 **NO ejecutar `Main.java` directamente desde Eclipse/IDE u otros IDE**. Las clases ANTLR deben generarse primero.
 
-### Opción 1: Usar Scripts (RECOMENDADO)
+### Opción 1: Usar Scripts 
 
 1. Abra PowerShell o CMD en la carpeta del proyecto
 2. Ejecute:
@@ -23,11 +23,11 @@ Espere a que termine (genera las clases ANTLR en `gen/`)
 ejecutar.bat
 ```
 
-### Opción 2: Línea de Comandos Manual
+### Opción 2: Línea de Comandos Manual (esta suele ser mas sencilla)
 
 1. Compilar:
 ```powershell
-cd c:\Users\alexp\JavaES
+cd c:\Users\SuUsuario\JavaES   debe ser la ruta donde puso el repositorio este es un ejemplo en mi caso es directo en la Carpeta Usuario
 .\compilar.bat
 ```
 
