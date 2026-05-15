@@ -27,7 +27,7 @@ Espere a que termine (genera las clases ANTLR en `gen/`)
 
 1. Compilar:
 ```powershell
-cd c:\Users\SuUsuario\JavaES   debe ser la ruta donde puso el repositorio este es un ejemplo en mi caso es directo en la Carpeta Usuario
+cd c:\Users\SuUsuario\JavaES  (debe ser la ruta donde puso el repositorio este es un ejemplo en mi caso es directo en la Carpeta Usuario) 
 .\compilar.bat
 ```
 

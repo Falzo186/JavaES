@@ -38,7 +38,7 @@ cd build
 java -cp ".;..\antlr-4.9.2-complete.jar" Main
 ```
 
-⚠️ **IMPORTANTE:** No ejecutar `Main.java` directamente desde Eclipse/IDE sin compilar primero con `compilar.bat`. Las clases ANTLR necesitan ser generadas.
+⚠️ **IMPORTANTE:** No ejecutar `Main.java` directamente desde Eclipse/IDE sin compilar primero con `.\compilar.bat`. Las clases ANTLR necesitan ser generadas.
 
 ## Token Set Completo
 
