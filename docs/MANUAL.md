@@ -14,13 +14,13 @@
 1. Abra PowerShell o CMD en la carpeta del proyecto
 2. Ejecute:
 ```batch
-compilar.bat
+.\compilar.bat
 ```
 Espere a que termine (genera las clases ANTLR en `gen/`)
 
 3. Luego ejecute:
 ```batch
-ejecutar.bat
+.\ejecutar.bat
 ```
 
 ### Opción 2: Línea de Comandos Manual (esta suele ser mas sencilla)
