@@ -39,21 +39,30 @@ Lista de categorías soportadas:
 
 ## Cómo ejecutar
 
-1. Abrir PowerShell en `c:\Users\SuUsuario\JavaES`
-2. Ejecutar:
+1. Abra PowerShell en la carpeta del proyecto, por ejemplo:
+   ```powershell
+   cd C:\Users\SuUsuario\JavaES
+   ```
+2. Compile el proyecto con el script:
    ```powershell
    .\compilar.bat
+   ```
+3. Ejecute el programa principal:
+   ```powershell
    .\ejecutar.bat
    ```
-3. Alternativa directa:
-   ```powershell
-   cd c:\Users\SuUsuario\JavaES
-   .\compilar.bat
-   cd build
-   java -cp ".;..\antlr-4.9.2-complete.jar" Main
-   ```
 
-⚠️ **IMPORTANTE:** No ejecutar `Main.java` directamente desde Eclipse/IDE sin compilar primero con `.\compilar.bat`.
+### Alternativa directa (mas sencillo)
+
+Si necesita ejecutar manualmente sin usar `ejecutar.bat`:
+```powershell
+cd C:\Users\SuUsuario\JavaES
+.\compilar.bat
+cd build
+java -cp ".;..\antlr-4.9.2-complete.jar" Main
+```
+
+⚠️ **IMPORTANTE:** No ejecute `Main.java` directamente desde Eclipse u otro IDE sin compilar primero con `.\compilar.bat`.
 
 ## Ejemplos de uso
 

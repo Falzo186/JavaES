@@ -8,6 +8,7 @@
 
 ### ⚠️ IMPORTANTE
 **NO ejecutar `Main.java` directamente desde Eclipse/IDE u otros IDE**. Las clases ANTLR deben generarse primero.
+** Se recomienda VSCode para mayor facilidad 
 
 ### Opción 1: Usar Scripts 
 
