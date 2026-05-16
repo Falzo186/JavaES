@@ -23,24 +23,43 @@ public class LexerRunner {
             System.out.println("│ TOKEN                    │ LEXEMA           │ LÍNEA  │ COLUMNA│");
             System.out.println("├──────────────────────────┼──────────────────┼────────┼────────┤");
             
+            boolean hayErrorLexico = false;
+            StringBuilder reporteErrores = new StringBuilder();
+
             for (Token t : tokens.getTokens()) {
                 if (t.getType() == -1) break; // EOF
                 String nombreToken = JavaESLexer.VOCABULARY.getSymbolicName(t.getType());
                 String lexema = t.getText();
                 int linea = t.getLine();
                 int columna = t.getCharPositionInLine() + 1;
-                
+
                 if (nombreToken == null) nombreToken = "DESCONOCIDO";
-                
+
+                if (t.getType() == JavaESLexer.ERROR_LEXICO) {
+                    hayErrorLexico = true;
+                    reporteErrores.append(String.format("Error léxico: carácter inválido '%s' en línea %d, columna %d.%n", lexema, linea, columna));
+                }
+
                 // Limitar lexema a 16 caracteres
                 if (lexema.length() > 16) {
                     lexema = lexema.substring(0, 13) + "...";
                 }
-                
+
                 System.out.printf("│ %-24s │ %-16s │ %6d │ %6d │\n", 
                     nombreToken, lexema, linea, columna);
             }
             System.out.println("└──────────────────────────┴──────────────────┴────────┴────────┘\n");
+
+            if (hayErrorLexico) {
+                System.err.println("┌─────────────────────────────────────────────────┐");
+                System.err.println("│               ERROR LÉXICO DETECTADO             │");
+                System.err.println("├─────────────────────────────────────────────────┤");
+                for (String lineaError : reporteErrores.toString().split("\n")) {
+                    if (lineaError.isEmpty()) continue;
+                    System.err.printf("│ %-47s │%n", lineaError);
+                }
+                System.err.println("└─────────────────────────────────────────────────┘");
+            }
             
         } catch (IOException ex) {
             System.err.println("❌ Error leyendo archivo: " + ex.getMessage());

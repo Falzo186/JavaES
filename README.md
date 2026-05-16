@@ -1,83 +1,73 @@
-# JAVAES - Front-end de compilador (español)
+# JAVAES — Analizador Léxico
 
-Proyecto académico profesional: analizador léxico y sintáctico completo con ANTLR4.
+JAVAES es un lenguaje académico inspirado en Java que utiliza palabras clave en español y un lexer construido con ANTLR4 para análisis léxico y sintáctico.
 
-**Características:**
-- ✅ Lexer expandido con 87 tokens en español académico
-- ✅ Parser sin ambigüedades con manejo de precedencia de operadores
-- ✅ Análisis léxico y sintáctico interactivo
-- ✅ Visualización de árbol sintáctico jerárquico
-- ✅ Tabla profesional de tokens con formato Unicode
-- ✅ Mensajes de error completamente en español
-- ✅ Soporte para identificadores con acentos (UTF-8)
+## Información del Curso
 
-Estructura principal:
-- `grammar/`: gramáticas ANTLR4 (JavaESLexer.g4, JavaESParser.g4)
-- `src/`: código fuente del ejecutador, lexer/parser runner, visualizador
-- `gen/`: archivos generados por ANTLR (no commitear)
-- `resources/examples/`: 6 ejemplos válidos y 3 inválidos
-- `docs/`: manual, tokens expandidos, pruebas
-- `build/`: salida de compilación
+- Materia: Compiladores
+- Institución: [Nombre de la universidad]
+- Semestre: 2026-1
+- Profesor: [Nombre del profesor]
 
-## Compilación y Ejecución
+## Integrantes del Equipo
 
-### Opción 1: Usar script 
-```batch
-compilar.bat
-ejecutar.bat
-```
+| Nombre | Matrícula |
+| Jesus Alejandro Murillo Zavala | 2223330180 |
+| Adela Vega Ruiz  | 2223339021 |
+|Clemente Pecina Jose Eduardo  | 2193217022 |
+|Saldaña Nieto Pedro Daniel	| 2223330192 |
 
-### Opción 2: Línea de comandos
-```powershell
-# Compilar (genera clases ANTLR)
-cd c:\Users\SuUsuario\JavaES
-.\compilar.bat
 
-# Ejecutar menú interactivo
-cd build
-java -cp ".;..\antlr-4.9.2-complete.jar" Main
-```
 
-⚠️ **IMPORTANTE:** No ejecutar `Main.java` directamente desde Eclipse/IDE sin compilar primero con `.\compilar.bat`. Las clases ANTLR necesitan ser generadas.
+## Descripción del Lenguaje
 
-## Token Set Completo
+JAVAES es un lenguaje de propósito académico para el curso de compiladores. Soporta tipos básicos en español, declaraciones de variables, expresiones aritméticas, control de flujo y construcción de árbol sintáctico.
 
-87 tokens organizados en 20 categorías:
+## Tokens Reconocidos
 
-**Tipos:** entero, decimal, cadena, booleano, vacio, caracter
-**Control:** si, sino, mientras, para, hacer, cambiar, caso, defecto, romper, continuar, retornar
-**Excepciones:** intentar, capturar, finalmente, lanzar
-**OOP:** clase, interfaz, nuevo, este, super
-**Modificadores:** publico, privado, protegido, estatico, final
-**Especiales:** verdadero, falso, nulo, importar, paquete, imprimir, leer
-**Operadores:** ++, --, +, -, *, /, %, ==, !=, >, <, >=, <=, &&, ||, !, =, +=, -=, *=, /=, %=
-**Delimitadores:** (), {}, [], ;, ,, :, ->, @, etc.
+Lista de categorías soportadas:
 
-Ver `docs/TOKENS_EXPANDIDOS.md` para detalles completos.
+- Palabras reservadas: `entero`, `decimal`, `cadena`, `booleano`, `vacio`, `si`, `sino`, `mientras`, `para`, `hacer`, `retornar`, `clase`, `publico`, `privado`, `importar`, `paquete`, etc.
+- Tipos de literales: `ENTERO`, `DECIMAL`, `CADENA`, `CARACTER`, `BOOLEANO`, `NULO`
+- Identificadores con acentos y guion bajo
+- Operadores aritméticos: `++`, `--`, `+`, `-`, `*`, `/`, `%`
+- Operadores relacionales: `==`, `!=`, `<`, `>`, `<=`, `>=`
+- Operadores lógicos: `&&`, `||`, `!`
+- Asignación simple y compuesta: `=`, `+=`, `-=`, `*=`, `/=`, `%=`
+- Delimitadores: `;`, `,`, `(`, `)`, `{`, `}`, `[`, `]`, `:`, `->`, `@`
+- Comentarios: `//` y `/* ... */`
 
-## Menú Interactivo
+## Cómo ejecutar
 
-1. **Ejecutar análisis léxico** - Genera tabla de tokens
-2. **Ejecutar análisis sintáctico** - Verifica sintaxis
-3. **Mostrar árbol sintáctico** - Visualización jerárquica (esta en prueba)
-4. **Ejemplos válidos** - Ejecutar uno de 6 ejemplos correctos
-5. **Ejemplos con error** - Ejecutar uno de 3 ejemplos con errores
-6. **Salir**
+1. Abrir PowerShell en `c:\Users\SuUsuario\JavaES`
+2. Ejecutar:
+   ```powershell
+   .\compilar.bat
+   .\ejecutar.bat
+   ```
+3. Alternativa directa:
+   ```powershell
+   cd c:\Users\SuUsuario\JavaES
+   .\compilar.bat
+   cd build
+   java -cp ".;..\antlr-4.9.2-complete.jar" Main
+   ```
 
-## Ejemplos Incluidos
+⚠️ **IMPORTANTE:** No ejecutar `Main.java` directamente desde Eclipse/IDE sin compilar primero con `.\compilar.bat`.
 
-**Válidos:**
-- `ejemplo_basico.javaes` - Declaraciones de variables
-- `ejemplo_clase.javaes` - Definición de clase
-- `ejemplo_if.javaes` - Condicionales
-- `ejemplo_metodo.javaes` - Métodos y parámetros
-- `ejemplo_while.javaes` - Bucles while
-- `ejemplo_expandido.javaes` - Nuevos tokens (++, +=, &&, ||, etc.)
-- `ejemplo_control_flujo.javaes` - para, cambiar, case, intentar/capturar
+## Ejemplos de uso
 
-**Inválidos (demostración de errores):**
-- `error_lexico.javaes` - Carácter inválido ($)
-- `error_lexico_operador.javaes` - Operador no reconocido (@)
-- `error_sintactico.javaes` - Sintaxis incorrecta
+- `ejemplo_basico.javaes`: declaración de variables y asignación
+- `ejemplo_clase.javaes`: definición de clase y método
+- `ejemplo_if.javaes`: condicional `si / sino`
+- `ejemplo_while.javaes`: bucle `mientras`
+- `ejemplo_expandido.javaes`: operadores `++`, `+=`, `&&`, `||`
+- `ejemplo_control_flujo.javaes`: `para`, `cambiar`, `caso`, `intentar / capturar`
 
-Siga `docs/MANUAL.md` para más información.
+## Archivos principales
+
+- `grammar/JavaESLexer.g4`: definición completa del lexer
+- `src/`: código de ejecución y manejo de errores
+- `resources/examples/`: ejemplos de prueba
+- `build/`: salida compilada
+
