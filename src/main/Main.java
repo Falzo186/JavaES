@@ -111,7 +111,7 @@ public class Main {
                     LexerRunner.ejecutarLexico(rutaArchivo);
                     
                     // Preguntar por árbol sintáctico
-                    System.out.print("¿Desea crear el árbol sintáctico? (1=sí, 2=no): ");
+                    System.out.print("¿Desea crear el árbol sintáctico?(Esta en Prueba) 1=sí, 2=no: ");
                     String opcionArbol = sc.nextLine().trim();
                     if (opcionArbol.equals("1")) {
                         ParserRunner.mostrarArbol(rutaArchivo);

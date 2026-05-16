@@ -4,10 +4,10 @@ JAVAES es un lenguaje académico inspirado en Java que utiliza palabras clave en
 
 ## Información del Curso
 
-- Materia: Compiladores
-- Institución: [Nombre de la universidad]
+- Materia: PROGRAMACION DE SISTEMAS DE BASE 1
+- Institución: Universidad Autonoma De Tamaulipas
 - Semestre: 2026-1
-- Profesor: [Nombre del profesor]
+- Profesor: Muñoz Quintero Dante Adolfo
 
 ## Integrantes del Equipo
 

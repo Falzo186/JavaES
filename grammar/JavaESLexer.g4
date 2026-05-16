@@ -100,6 +100,10 @@ CARACTER        : '\'' ( ~['\\\r\n] | ESC ) '\'';
 
 DECIMAL_CIENTIFICO : [0-9]+ '.' [0-9]+ ('e'|'E') ('+'|'-')? [0-9]+;
 DECIMAL         : [0-9]+ '.' [0-9]+;
+
+// Identificadores inválidos que comienzan con dígito
+IDENTIFICADOR_INVALIDO : [0-9]+ [a-zA-Z_\u00C0-\u017F] [a-zA-Z0-9_\u00C0-\u017F]*;
+
 ENTERO          : [0-9]+;
 ENTERO_HEX      : '0x' [0-9a-fA-F]+;
 ENTERO_OCTAL    : '0' [0-7]+;

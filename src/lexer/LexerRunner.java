@@ -35,9 +35,12 @@ public class LexerRunner {
 
                 if (nombreToken == null) nombreToken = "DESCONOCIDO";
 
-                if (t.getType() == JavaESLexer.ERROR_LEXICO) {
+                if (t.getType() == JavaESLexer.ERROR_LEXICO || t.getType() == JavaESLexer.IDENTIFICADOR_INVALIDO) {
                     hayErrorLexico = true;
-                    reporteErrores.append(String.format("Error léxico: carácter inválido '%s' en línea %d, columna %d.%n", lexema, linea, columna));
+                    String mensaje = t.getType() == JavaESLexer.IDENTIFICADOR_INVALIDO
+                        ? String.format("Error léxico: identificador inválido '%s' en línea %d, columna %d.%n", lexema, linea, columna)
+                        : String.format("Error léxico: carácter inválido '%s' en línea %d, columna %d.%n", lexema, linea, columna);
+                    reporteErrores.append(mensaje);
                 }
 
                 // Limitar lexema a 16 caracteres
