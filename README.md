@@ -39,6 +39,10 @@ Lista de categorías soportadas:
 
 ## Cómo ejecutar
 
+## Requisitos
+- Java 17 o superior de preferencia el mas actalizado por favor 
+- Archivo `antlr-4.9.2-complete.jar` en la raíz del proyecto 
+
 1. Abra PowerShell en la carpeta del proyecto, por ejemplo:
    ```powershell
    cd C:\Users\SuUsuario\JavaES
