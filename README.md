@@ -41,7 +41,7 @@ Lista de categorías soportadas:
 
 ## Requisitos
 - Java 17 o superior de preferencia el mas actalizado por favor 
-- Archivo `antlr-4.9.2-complete.jar` en la raíz del proyecto 
+- Archivo `antlr-4.13.2-complete.jar` en la raíz del proyecto 
 
 1. Abra PowerShell en la carpeta del proyecto, por ejemplo:
    ```powershell
@@ -63,7 +63,7 @@ Si necesita ejecutar manualmente sin usar `ejecutar.bat`:
 cd C:\Users\SuUsuario\JavaES
 .\compilar.bat
 cd build
-java -cp ".;..\antlr-4.9.2-complete.jar" Main
+java -cp ".;..\antlr-4.13.2-complete.jar" Main
 ```
 
 ⚠️ **IMPORTANTE:** No ejecute `Main.java` directamente desde Eclipse u otro IDE sin compilar primero con `.\compilar.bat`.

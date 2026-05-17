@@ -1,6 +1,6 @@
 @echo off
 setlocal
-set ANTLR_JAR=antlr-4.9.2-complete.jar
+set ANTLR_JAR=antlr-4.13.2-complete.jar
 if not exist %ANTLR_JAR% (
   echo No se encontro %ANTLR_JAR%. Descargue ANTLR4 y coloque el jar en la raiz del proyecto.
   pause
