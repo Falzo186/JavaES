@@ -1,7 +1,7 @@
 # MANUAL de uso - JAVAES
 
 ## Requisitos
-- Java 11 o superior de preferencia el mas actalizado por favor 
+- Java 17 o superior de preferencia el mas actalizado por favor 
 - Archivo `antlr-4.9.2-complete.jar` en la raíz del proyecto 
 
 ## Compilación y Ejecución - Paso a Paso
