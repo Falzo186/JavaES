@@ -2,13 +2,14 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class LexerRunner {
     public static void ejecutarLexico(String rutaArchivo) {
         try {
-            String texto = new String(Files.readAllBytes(Paths.get(rutaArchivo)));
+            String texto = new String(Files.readAllBytes(Paths.get(rutaArchivo)), StandardCharsets.UTF_8);
             JavaESLexer lexer = new JavaESLexer(CharStreams.fromString(texto));
             lexer.removeErrorListeners();
             lexer.addErrorListener(new LexerErrorListener());

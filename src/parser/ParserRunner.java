@@ -2,13 +2,14 @@ import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class ParserRunner {
     public static void ejecutarParser(String rutaArchivo) {
         try {
-            String texto = new String(Files.readAllBytes(Paths.get(rutaArchivo)));
+            String texto = new String(Files.readAllBytes(Paths.get(rutaArchivo)), StandardCharsets.UTF_8);
             JavaESLexer lexer = new JavaESLexer(CharStreams.fromString(texto));
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             JavaESParser parser = new JavaESParser(tokens);
@@ -33,7 +34,7 @@ public class ParserRunner {
 
     public static void mostrarArbol(String rutaArchivo) {
         try {
-            String texto = new String(Files.readAllBytes(Paths.get(rutaArchivo)));
+            String texto = new String(Files.readAllBytes(Paths.get(rutaArchivo)), StandardCharsets.UTF_8);
             JavaESLexer lexer = new JavaESLexer(CharStreams.fromString(texto));
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             JavaESParser parser = new JavaESParser(tokens);
