@@ -2,6 +2,10 @@
 setlocal
 cd /d "%~dp0"
 set ANTLR_JAR=antlr-4.13.2-complete.jar
+set "JAVA_EXE=%~dp0oracleJdk-26\bin\java.exe"
+if not exist "%JAVA_EXE%" (
+  set "JAVA_EXE=java"
+)
 if not exist %ANTLR_JAR% (
   echo No se encontro %ANTLR_JAR%. Descargue ANTLR4 y coloque el jar en la raiz del proyecto.
   pause
@@ -12,15 +16,15 @@ if not exist gen mkdir gen
 if not exist build mkdir build
 
 echo Generando clases ANTLR en gen\ ...
-java -jar %ANTLR_JAR% -Dlanguage=Java -o gen grammar\JavaESLexer.g4
+"%JAVA_EXE%" -jar %ANTLR_JAR% -Dlanguage=Java -o gen grammar\JavaESLexer.g4
 if errorlevel 1 (
   echo Error al generar el lexer con ANTLR
   pause
   exit /b 1
 )
 
-REM Generar parser usando tokens generados (buscar en gen)
-java -jar %ANTLR_JAR% -Dlanguage=Java -o gen -lib gen grammar\JavaESParser.g4
+REM Generar parser usando los tokens generados por el lexer
+"%JAVA_EXE%" -jar %ANTLR_JAR% -Dlanguage=Java -o gen -lib gen\grammar grammar\JavaESParser.g4
 
 if errorlevel 1 (
   echo Error al generar el parser con ANTLR

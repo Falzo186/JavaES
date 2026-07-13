@@ -35,7 +35,7 @@ cd c:\Users\SuUsuario\JavaES  (debe ser la ruta donde puso el repositorio este e
 2. Ejecutar:
 ```powershell
 cd build
-java -cp ".;..\antlr-4.9.2-complete.jar" Main
+java -cp ".;..\antlr-4.13.2-complete.jar" Main
 ```
 
 ## Uso del Programa

@@ -1,0 +1,61 @@
+paquete ejemplo.integral;
+
+importar utilidades;
+
+publico clase Persona{
+
+entero edad;
+cadena nombre;
+
+publico vacio saludar(){
+    imprimir("Hola");
+}
+
+publico vacio mover(entero dx, entero dy){
+    este.edad = este.edad + dx;
+    super.saludar();
+    edad += 1;
+    ++edad;
+    edad--;
+    si (edad > 3 && nombre != "") {
+        imprimir(nombre);
+    } sino {
+        mientras (edad < 10) {
+            edad = edad + 1;
+        }
+    }
+
+    para (entero i = 0; i < 3; i++) {
+        imprimir(i);
+    }
+
+    hacer {
+        edad = edad + 1;
+    } mientras (edad < 5);
+
+    cambiar (edad) {
+        caso 1:
+            romper;
+        caso 2:
+            romper;
+        defecto:
+            continuar;
+    }
+
+    intentar {
+        entero resultado = sumar(2, 3);
+        nuevo Persona();
+    } capturar (Error e) {
+        imprimir(e);
+    } finalmente {
+        leer();
+    }
+
+    retornar;
+}
+
+}
+
+entero sumar(entero a, entero b) {
+    retornar a + b * 2;
+}

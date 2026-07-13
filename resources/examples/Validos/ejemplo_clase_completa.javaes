@@ -1,0 +1,11 @@
+publico clase Persona{
+
+entero edad;
+
+cadena nombre;
+
+publico vacio saludar(){
+
+}
+
+}

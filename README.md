@@ -40,7 +40,7 @@ Lista de categorías soportadas:
 ## Cómo ejecutar
 
 ## Requisitos
-- Java 17 o superior de preferencia el mas actalizado por favor 
+- Usar el JDK incluido en el repositorio o tener Java 17+ disponible
 - Archivo `antlr-4.13.2-complete.jar` en la raíz del proyecto 
 
 1. Abra PowerShell en la carpeta del proyecto, por ejemplo:
@@ -56,6 +56,8 @@ Lista de categorías soportadas:
    .\ejecutar.bat
    ```
 
+   Este script ya usa el JDK local incluido en el repositorio, así que no depende del `java` instalado en Windows.
+
 ### Alternativa directa (mas sencillo)
 
 Si necesita ejecutar manualmente sin usar `ejecutar.bat`:
@@ -63,8 +65,16 @@ Si necesita ejecutar manualmente sin usar `ejecutar.bat`:
 cd C:\Users\SuUsuario\JavaES
 .\compilar.bat
 cd build
-java -cp ".;..\antlr-4.13.2-complete.jar" Main
+..\oracleJdk-26\bin\java.exe -cp ".;..\antlr-4.13.2-complete.jar" Main
 ```
+
+Si quiere ejecutar pruebas puntuales del parser:
+```powershell
+cd C:\Users\SuUsuario\JavaES\build
+..\oracleJdk-26\bin\java.exe -cp ".;..\antlr-4.13.2-complete.jar" ParserTest ..\resources\examples\Validos\ejemplo_clase_completa.javaes
+```
+
+Importante: si usa `java` sin ruta absoluta y su sistema tiene Java 8, verá `UnsupportedClassVersionError`.
 
 ⚠️ **IMPORTANTE:** No ejecute `Main.java` directamente desde Eclipse u otro IDE sin compilar primero con `.\compilar.bat`.
 

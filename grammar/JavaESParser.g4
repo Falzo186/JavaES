@@ -2,38 +2,61 @@ parser grammar JavaESParser;
 options { tokenVocab=JavaESLexer; }
 
 // Regla principal
-programa: declaracionGlobal* EOF;
+programa: elementoGlobal* EOF;
 
-declaracionGlobal: claseDecl
-                 | metodoDecl
-                 | varGlobalDecl
-                 ;
+elementoGlobal: paqueteDecl
+              | importacionDecl
+              | claseDecl
+              | declaracionGlobal
+              | metodoDecl
+              ;
+
+paqueteDecl: PAQUETE rutaCalificada PUNTO_Y_COMA;
+
+importacionDecl: IMPORTAR rutaCalificada PUNTO_Y_COMA;
+
+rutaCalificada: IDENTIFICADOR (PUNTO IDENTIFICADOR)*;
 
 // Declaración de clase
-claseDecl: CLASE IDENTIFICADOR LLAVE_ABIERTA miembroClase* LLAVE_CERRADA;
+claseDecl: modificadores? CLASE IDENTIFICADOR LLAVE_ABIERTA miembroClase* LLAVE_CERRADA;
 
-miembroClase: varClaseDecl | metodoClase;
+miembroClase: declaracionVariable | metodoDecl;
 
-varClaseDecl: tipo IDENTIFICADOR PUNTO_Y_COMA;
+declaracionGlobal: declaracionVariable;
 
-metodoClase: tipo IDENTIFICADOR PARENTESIS_ABIERTO parametros? PARENTESIS_CERRADO bloque;
+declaracionVariable: modificadores? tipo variablesDeclaradas PUNTO_Y_COMA;
+
+variablesDeclaradas: variableDeclarada (COMA variableDeclarada)*;
+
+variableDeclarada: IDENTIFICADOR (ASIGNACION expresion)?;
 
 // Declaración de método global
-metodoDecl: tipo IDENTIFICADOR PARENTESIS_ABIERTO parametros? PARENTESIS_CERRADO bloque;
+metodoDecl: modificadores? tipo IDENTIFICADOR PARENTESIS_ABIERTO parametros? PARENTESIS_CERRADO bloque;
+
+modificadores: modificador+;
+
+modificador: PUBLICO
+           | PRIVADO
+           | PROTEGIDO
+           | ESTATICO
+           | FINAL
+           ;
 
 parametros: parametro (COMA parametro)*;
 parametro: tipo IDENTIFICADOR;
 
-// Variable global
-varGlobalDecl: tipo IDENTIFICADOR (ASIGNACION expresion)? PUNTO_Y_COMA;
-
 // Tipos
-tipo: ENTERO_TIPO
-    | DECIMAL_TIPO
-    | CADENA_TIPO
-    | BOOLEANO_TIPO
-    | VACIO_TIPO
+tipo: tipoPrimitivo
+    | IDENTIFICADOR
     ;
+
+tipoPrimitivo: ENTERO_TIPO
+             | DECIMAL_TIPO
+             | CADENA_TIPO
+             | BOOLEANO_TIPO
+             | VACIO_TIPO
+             | CARACTER_TIPO
+             ;
 
 // Bloque de código
 bloque: LLAVE_ABIERTA instruccion* LLAVE_CERRADA;
@@ -41,17 +64,53 @@ bloque: LLAVE_ABIERTA instruccion* LLAVE_CERRADA;
 instruccion: varLocalDecl
            | instruccion_if
            | instruccion_while
+           | instruccion_for
+           | instruccion_doWhile
+           | instruccion_switch
+           | instruccion_tryCatch
            | instruccion_return
+           | instruccion_break
+           | instruccion_continue
            | instruccion_simple
            ;
 
-varLocalDecl: tipo IDENTIFICADOR (ASIGNACION expresion)? PUNTO_Y_COMA;
+varLocalDecl: declaracionVariable;
 
 instruccion_if: SI PARENTESIS_ABIERTO expresion PARENTESIS_CERRADO bloque (SINO bloque)?;
 
 instruccion_while: MIENTRAS PARENTESIS_ABIERTO expresion PARENTESIS_CERRADO bloque;
 
+instruccion_for: PARA PARENTESIS_ABIERTO forInicializacion? PUNTO_Y_COMA expresion? PUNTO_Y_COMA expresion? PARENTESIS_CERRADO bloque;
+
+forInicializacion: declaracionFor
+                 | listaExpresiones
+                 ;
+
+declaracionFor: tipo variablesDeclaradas;
+
+listaExpresiones: expresion (COMA expresion)*;
+
+instruccion_doWhile: HACER bloque MIENTRAS PARENTESIS_ABIERTO expresion PARENTESIS_CERRADO PUNTO_Y_COMA;
+
+instruccion_switch: CAMBIAR PARENTESIS_ABIERTO expresion PARENTESIS_CERRADO LLAVE_ABIERTA casoSwitch* defectoSwitch? LLAVE_CERRADA;
+
+casoSwitch: CASO expresion DOS_PUNTOS instruccion*;
+
+defectoSwitch: DEFECTO DOS_PUNTOS instruccion*;
+
+instruccion_tryCatch: INTENTAR bloque capturarSecuencias finalmenteSecuencia?;
+
+capturarSecuencias: capturarSecuencia+;
+
+capturarSecuencia: CAPTURAR PARENTESIS_ABIERTO parametro PARENTESIS_CERRADO bloque;
+
+finalmenteSecuencia: FINALMENTE bloque;
+
 instruccion_return: RETORNAR expresion? PUNTO_Y_COMA;
+
+instruccion_break: ROMPER PUNTO_Y_COMA;
+
+instruccion_continue: CONTINUAR PUNTO_Y_COMA;
 
 instruccion_simple: expresion PUNTO_Y_COMA
                   | bloque
@@ -60,19 +119,60 @@ instruccion_simple: expresion PUNTO_Y_COMA
 // Expresiones
 expresion: asignacion;
 
-asignacion: comparacion (ASIGNACION asignacion)?;
+asignacion: logicoOr (operadorAsignacion asignacion)?;
 
-comparacion: suma ((IGUALDAD | DESIGUALDAD | MAYOR_QUE | MENOR_QUE | MAYOR_IGUAL_QUE | MENOR_IGUAL_QUE) suma)*;
+operadorAsignacion: ASIGNACION
+                  | SUMA_ASIGNACION
+                  | RESTA_ASIGNACION
+                  | MULTIPLICACION_ASIGNACION
+                  | DIVISION_ASIGNACION
+                  | MODULO_ASIGNACION
+                  ;
+
+logicoOr: logicoAnd (O_LOGICO logicoAnd)*;
+
+logicoAnd: igualdad (Y_LOGICO igualdad)*;
+
+igualdad: relacion ((IGUALDAD | DESIGUALDAD) relacion)*;
+
+relacion: suma ((MAYOR_QUE | MENOR_QUE | MAYOR_IGUAL_QUE | MENOR_IGUAL_QUE) suma)*;
 
 suma: producto ((SUMA | RESTA) producto)*;
 
-producto: atom ((MULTIPLICACION | DIVISION | MODULO) atom)*;
+producto: unaria ((MULTIPLICACION | DIVISION | MODULO) unaria)*;
 
-atom: PARENTESIS_ABIERTO expresion PARENTESIS_CERRADO
-    | ENTERO
-    | DECIMAL
-    | CADENA
-    | VERDADERO
-    | FALSO
-    | IDENTIFICADOR (PARENTESIS_ABIERTO (expresion (COMA expresion)*)? PARENTESIS_CERRADO)?
-    ;
+unaria: (NEGACION | SUMA | RESTA | INCREMENTO | DECREMENTO)* postfijo;
+
+postfijo: primaria sufijo*;
+
+sufijo: argumentos
+      | PUNTO IDENTIFICADOR
+      | INCREMENTO
+      | DECREMENTO
+      ;
+
+primaria: PARENTESIS_ABIERTO expresion PARENTESIS_CERRADO
+        | literal
+        | invocable
+        | nuevaInstancia
+        ;
+
+literal: ENTERO
+       | DECIMAL
+       | CADENA
+       | CARACTER
+       | VERDADERO
+       | FALSO
+       | NULO
+       ;
+
+invocable: IDENTIFICADOR
+         | IMPRIMIR
+         | LEER
+         | ESTE
+         | SUPER
+         ;
+
+nuevaInstancia: NUEVO IDENTIFICADOR argumentos?;
+
+argumentos: PARENTESIS_ABIERTO (expresion (COMA expresion)*)? PARENTESIS_CERRADO;

@@ -1,0 +1,11 @@
+entero a;
+
+entero b=5;
+
+cadena nombre="Juan";
+
+decimal promedio=9.5;
+
+booleano activo=verdadero;
+
+entero a,b,c;

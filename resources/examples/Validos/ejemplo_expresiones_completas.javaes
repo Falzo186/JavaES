@@ -1,0 +1,9 @@
+entero r = a+b*c;
+
+entero s = (a+b)*c;
+
+booleano t = x>3&&y<5;
+
+booleano u = !(a==b);
+
+entero v = potencia(2,3)+raiz(16);
