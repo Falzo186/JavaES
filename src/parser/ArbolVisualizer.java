@@ -107,6 +107,10 @@ public class ArbolVisualizer {
                     return nodo("DEFECTO", hijosPromovidos(contexto, parser, ancestros));
                 case "instruccion_tryCatch":
                     return construirTryCatch(contexto, parser, ancestros);
+                case "capturarSecuencia":
+                    return construirCapturarSecuencia(contexto, parser);
+                case "finalmenteSecuencia":
+                    return construirFinalmenteSecuencia(contexto, parser);
                 case "instruccion_return":
                     return construirReturn(contexto, parser);
                 case "instruccion_break":
@@ -172,7 +176,7 @@ public class ArbolVisualizer {
 
     private static NodoVisual construirDeclaracionVariable(ParserRuleContext contexto, Parser parser, Deque<String> ancestros) {
         String tipo = textoHijo(contexto, parser, "tipo");
-        String alcance = alcanceVariable(ancestros);
+        String alcance = alcanceVariable(contexto, ancestros);
 
         List<NodoVisual> hijos = new ArrayList<>();
         NodoVisual modificadores = construirModificadores(contexto, parser);
@@ -210,16 +214,33 @@ public class ArbolVisualizer {
         return nodo(alcance + ": " + nombre, hijos);
     }
 
+    // ------------------------------------------------------------------
+    // CORRECCIÓN: antes estas condiciones se imprimían como texto plano
+    // (resumenHijo/resumen), rompiendo la consistencia visual con el
+    // resto del árbol (RETORNAR, ASIGNACIÓN, ARGUMENTO), que siempre
+    // anida un subárbol real construido con construirExpresionCompacta.
+    // Ahora TODAS las expresiones de control (SI, MIENTRAS, PARA,
+    // HACER..MIENTRAS, CAMBIAR, CASO) se construyen igual: se anida el
+    // subárbol real de la expresión bajo una etiqueta, en vez de
+    // aplanar el texto con resumen().
+    // ------------------------------------------------------------------
+    private static NodoVisual construirNodoConExpresion(String etiqueta, ParserRuleContext expresion, Parser parser) {
+        if (expresion == null) {
+            return nodo(etiqueta, List.of());
+        }
+        return nodo(etiqueta, List.of(construirExpresionCompacta(expresion, parser)));
+    }
+
     private static NodoVisual construirIf(ParserRuleContext contexto, Parser parser, Deque<String> ancestros) {
         List<NodoVisual> hijos = new ArrayList<>();
-        hijos.add(nodo("CONDICIÓN: " + resumenHijo(contexto, parser, "expresion"), List.of()));
+        hijos.add(construirNodoConExpresion("CONDICIÓN", hijoDirectoPorRegla(contexto, "expresion"), parser));
         hijos.addAll(hijosPromovidos(contexto, parser, ancestros, "bloque"));
         return nodo("SI", hijos);
     }
 
     private static NodoVisual construirWhile(ParserRuleContext contexto, Parser parser, Deque<String> ancestros) {
         List<NodoVisual> hijos = new ArrayList<>();
-        hijos.add(nodo("CONDICIÓN: " + resumenHijo(contexto, parser, "expresion"), List.of()));
+        hijos.add(construirNodoConExpresion("CONDICIÓN", hijoDirectoPorRegla(contexto, "expresion"), parser));
         hijos.addAll(hijosPromovidos(contexto, parser, ancestros, "bloque"));
         return nodo("MIENTRAS", hijos);
     }
@@ -233,10 +254,10 @@ public class ArbolVisualizer {
 
         List<ParserRuleContext> expresiones = hijosDirectosPorRegla(contexto, "expresion");
         if (!expresiones.isEmpty()) {
-            hijos.add(nodo("CONDICIÓN: " + resumen(expresiones.get(0), parser), List.of()));
+            hijos.add(construirNodoConExpresion("CONDICIÓN", expresiones.get(0), parser));
         }
         if (expresiones.size() > 1) {
-            hijos.add(nodo("ACTUALIZACIÓN: " + resumen(expresiones.get(1), parser), List.of()));
+            hijos.add(construirNodoConExpresion("ACTUALIZACIÓN", expresiones.get(1), parser));
         }
 
         NodoVisual bloque = construirHijoDirectoPorRegla(contexto, parser, ancestros, "bloque", "BLOQUE");
@@ -250,37 +271,52 @@ public class ArbolVisualizer {
     private static NodoVisual construirDoWhile(ParserRuleContext contexto, Parser parser, Deque<String> ancestros) {
         List<NodoVisual> hijos = new ArrayList<>();
         hijos.addAll(hijosPromovidos(contexto, parser, ancestros, "bloque"));
-        hijos.add(nodo("CONDICIÓN: " + resumenHijo(contexto, parser, "expresion"), List.of()));
+        hijos.add(construirNodoConExpresion("CONDICIÓN", hijoDirectoPorRegla(contexto, "expresion"), parser));
         return nodo("HACER ... MIENTRAS", hijos);
     }
 
     private static NodoVisual construirSwitch(ParserRuleContext contexto, Parser parser, Deque<String> ancestros) {
         List<NodoVisual> hijos = new ArrayList<>();
-        hijos.add(nodo("EXPRESIÓN: " + resumenHijo(contexto, parser, "expresion"), List.of()));
+        hijos.add(construirNodoConExpresion("EXPRESIÓN", hijoDirectoPorRegla(contexto, "expresion"), parser));
         hijos.addAll(hijosPromovidos(contexto, parser, ancestros, "casoSwitch", "defectoSwitch"));
         return nodo("CAMBIAR", hijos);
     }
 
     private static NodoVisual construirCaso(ParserRuleContext contexto, Parser parser, Deque<String> ancestros) {
         List<NodoVisual> hijos = new ArrayList<>();
+        hijos.add(construirNodoConExpresion("VALOR", hijoDirectoPorRegla(contexto, "expresion"), parser));
         hijos.addAll(hijosPromovidos(contexto, parser, ancestros, "instruccion"));
-        return nodo("CASO: " + resumenHijo(contexto, parser, "expresion"), hijos);
+        return nodo("CASO", hijos);
     }
 
     private static NodoVisual construirTryCatch(ParserRuleContext contexto, Parser parser, Deque<String> ancestros) {
         List<NodoVisual> hijos = new ArrayList<>();
-        hijos.addAll(hijosPromovidos(contexto, parser, ancestros, "bloque"));
-        hijos.addAll(hijosPromovidos(contexto, parser, ancestros, "capturarSecuencias"));
-        hijos.addAll(hijosPromovidos(contexto, parser, ancestros, "finalmenteSecuencia"));
+        ParserRuleContext bloque = hijoDirectoPorRegla(contexto, "bloque");
+        if (bloque != null) {
+            hijos.add(nodo("BLOQUE INTENTO", contenidoBloque(bloque, parser, ancestros)));
+        }
+
+        ParserRuleContext capturas = hijoDirectoPorRegla(contexto, "capturarSecuencias");
+        if (capturas != null) {
+            for (ParserRuleContext captura : hijosDirectosPorRegla(capturas, "capturarSecuencia")) {
+                hijos.add(construirCapturarSecuencia(captura, parser));
+            }
+        }
+
+        ParserRuleContext finalmente = hijoDirectoPorRegla(contexto, "finalmenteSecuencia");
+        if (finallyExiste(finalmente)) {
+            hijos.add(construirFinalmenteSecuencia(finalmente, parser));
+        }
+
         return nodo("INTENTAR", hijos);
     }
 
     private static NodoVisual construirReturn(ParserRuleContext contexto, Parser parser) {
-        String expresion = resumenHijo(contexto, parser, "expresion");
-        if (expresion.isEmpty()) {
+        ParserRuleContext expresion = hijoDirectoPorRegla(contexto, "expresion");
+        if (expresion == null) {
             return nodo("RETORNAR", List.of());
         }
-        return nodo("RETORNAR: " + expresion, List.of());
+        return nodo("RETORNAR", List.of(construirExpresionCompacta(expresion, parser)));
     }
 
     private static NodoVisual construirInstruccionSimple(ParserRuleContext contexto, Parser parser, Deque<String> ancestros) {
@@ -289,8 +325,12 @@ public class ArbolVisualizer {
             return bloque;
         }
 
-        String expresion = resumenHijo(contexto, parser, "expresion");
-        return nodo("EXPRESIÓN: " + expresion, List.of());
+        ParserRuleContext expresion = hijoDirectoPorRegla(contexto, "expresion");
+        if (expresion != null) {
+            return construirExpresionCompacta(expresion, parser);
+        }
+
+        return nodo("INSTRUCCIÓN", List.of());
     }
 
     private static NodoVisual construirVariableDeclarada(ParserRuleContext contexto, Parser parser) {
@@ -307,7 +347,7 @@ public class ArbolVisualizer {
 
         ParserRuleContext expresion = hijoDirectoPorRegla(contexto, "expresion");
         if (expresion != null) {
-            hijos.add(nodo("ASIGNACIÓN", List.of(construir(expresion, parser, new ArrayDeque<>()))));
+            hijos.add(nodo("ASIGNACIÓN", List.of(construirExpresionCompacta(expresion, parser))));
         }
 
         return nodo("VARIABLE", hijos);
@@ -343,7 +383,7 @@ public class ArbolVisualizer {
     private static NodoVisual construirArgumentos(ParserRuleContext contexto, Parser parser) {
         List<NodoVisual> hijos = new ArrayList<>();
         for (ParserRuleContext expresion : hijosDirectosPorRegla(contexto, "expresion")) {
-            hijos.add(nodo("ARGUMENTO", List.of(construir(expresion, parser, new ArrayDeque<>()))));
+            hijos.add(nodo("ARGUMENTO", List.of(construirExpresionCompacta(expresion, parser))));
         }
         return nodo("ARGUMENTOS", hijos);
     }
@@ -379,7 +419,7 @@ public class ArbolVisualizer {
             return nodo("EXPRESIÓN", List.of());
         }
 
-        return nodo("EXPRESIÓN", List.of(construir(asignacion, parser, new ArrayDeque<>())));
+        return construirExpresionCompacta(asignacion, parser);
     }
 
     private static NodoVisual construirAsignacion(ParserRuleContext contexto, Parser parser) {
@@ -399,22 +439,43 @@ public class ArbolVisualizer {
             if (ladoIzquierdo == null) {
                 return nodo("ASIGNACIÓN", List.of());
             }
-            return construir(ladoIzquierdo, parser, new ArrayDeque<>());
+            return construirCadenaBinariaCompacta(ladoIzquierdo, parser);
         }
 
         List<NodoVisual> hijos = new ArrayList<>();
         if (ladoIzquierdo != null) {
-            hijos.add(nodo("DESTINO", List.of(construir(ladoIzquierdo, parser, new ArrayDeque<>()))));
+            hijos.add(nodo("DESTINO", List.of(construirCadenaBinariaCompacta(ladoIzquierdo, parser))));
         }
         hijos.add(nodo("OPERADOR: " + resumen(operador, parser), List.of()));
         if (ladoDerecho != null) {
-            hijos.add(nodo("VALOR", List.of(construir(ladoDerecho, parser, new ArrayDeque<>()))));
+            hijos.add(nodo("VALOR", List.of(construirExpresionCompacta(ladoDerecho, parser))));
         }
         return nodo("ASIGNACIÓN", hijos);
     }
 
     private static NodoVisual construirCadenaBinaria(ParserRuleContext contexto, Parser parser, String siguienteRegla, String operadorEsperado) {
         return construirCadenaBinariaMulti(contexto, parser, siguienteRegla, new String[]{operadorEsperado});
+    }
+
+    private static NodoVisual construirCadenaBinariaCompacta(ParserRuleContext contexto, Parser parser) {
+        ParserRuleContext actual = contexto;
+        while (actual != null) {
+            String regla = nombreRegla(actual, parser);
+            if ("logicoOr".equals(regla) || "logicoAnd".equals(regla) || "igualdad".equals(regla)
+                || "relacion".equals(regla) || "suma".equals(regla) || "producto".equals(regla)
+                || "unaria".equals(regla) || "postfijo".equals(regla) || "primaria".equals(regla)
+                || "literal".equals(regla) || "invocable".equals(regla) || "nuevaInstancia".equals(regla)) {
+                return construir(actual, parser, new ArrayDeque<>());
+            }
+
+            ParserRuleContext siguiente = primerHijoRegla(actual, "logicoOr", "logicoAnd", "igualdad", "relacion", "suma", "producto", "unaria", "postfijo", "primaria", "literal", "invocable", "nuevaInstancia");
+            if (siguiente == null) {
+                break;
+            }
+            actual = siguiente;
+        }
+
+        return construir(contexto, parser, new ArrayDeque<>());
     }
 
     private static NodoVisual construirCadenaBinariaMulti(ParserRuleContext contexto, Parser parser, String siguienteRegla, String[] operadores) {
@@ -429,12 +490,12 @@ public class ArbolVisualizer {
 
         if (elementos.size() <= 1) {
             ParserRuleContext unico = hijoDirectoPorRegla(contexto, siguienteRegla);
-            return unico == null ? nodo("EXPRESIÓN", List.of()) : construir(unico, parser, new ArrayDeque<>());
+            return unico == null ? nodo("OPERANDO", List.of()) : construirSinEnvolver(unico, parser);
         }
 
         for (ParseTree elemento : elementos) {
             if (elemento instanceof ParserRuleContext) {
-                hijos.add(nodo("OPERANDO", List.of(construir((ParserRuleContext) elemento, parser, new ArrayDeque<>()))));
+                hijos.add(comoOperando(construirSinEnvolver((ParserRuleContext) elemento, parser)));
             } else {
                 String texto = elemento.getText();
                 if (texto.isEmpty()) {
@@ -447,17 +508,25 @@ public class ArbolVisualizer {
         return nodo("EXPRESIÓN", hijos);
     }
 
+    private static NodoVisual comoOperando(NodoVisual candidato) {
+        return candidato.etiqueta.startsWith("OPERANDO")
+            ? candidato
+            : nodo("OPERANDO", List.of(candidato));
+    }
+
     private static NodoVisual construirUnaria(ParserRuleContext contexto, Parser parser) {
         List<NodoVisual> hijos = new ArrayList<>();
+        boolean tieneOperador = false;
         for (int i = 0; i < contexto.getChildCount(); i++) {
             ParseTree hijo = contexto.getChild(i);
             if (hijo instanceof TerminalNode) {
                 String texto = hijo.getText();
                 if (!texto.isEmpty()) {
+                    tieneOperador = true;
                     hijos.add(nodo("OPERADOR: " + texto, List.of()));
                 }
             } else if (hijo instanceof ParserRuleContext) {
-                hijos.add(nodo("OPERANDO", List.of(construir((ParserRuleContext) hijo, parser, new ArrayDeque<>()))));
+                hijos.add(nodo("OPERANDO", List.of(construirSinEnvolver((ParserRuleContext) hijo, parser))));
             }
         }
 
@@ -465,12 +534,16 @@ public class ArbolVisualizer {
             return nodo("OPERANDO", List.of());
         }
 
+        if (!tieneOperador && hijos.size() == 1 && contexto.getChild(0) instanceof ParserRuleContext) {
+            return construirSinEnvolver((ParserRuleContext) contexto.getChild(0), parser);
+        }
+
         return nodo("EXPRESIÓN", hijos);
     }
 
     private static NodoVisual construirPostfijo(ParserRuleContext contexto, Parser parser) {
         ParserRuleContext primaria = hijoDirectoPorRegla(contexto, "primaria");
-        NodoVisual base = primaria == null ? nodo("OPERANDO", List.of()) : construirPrimaria(primaria, parser);
+        NodoVisual base = primaria == null ? nodo("OPERANDO", List.of()) : construirSinEnvolver(primaria, parser);
 
         List<ParserRuleContext> sufijos = hijosDirectosPorRegla(contexto, "sufijo");
         if (!sufijos.isEmpty()) {
@@ -478,9 +551,9 @@ public class ArbolVisualizer {
             if (argumentos != null) {
                 String nombre = extraerNombreInvocable(primaria, parser);
                 List<NodoVisual> llamadaHijos = new ArrayList<>();
-                llamadaHijos.add(base);
+                llamadaHijos.add(nodo("IDENTIFICADOR: " + nombre, List.of()));
                 llamadaHijos.add(construirArgumentos(argumentos, parser));
-                return nodo("LLAMADA A MÉTODO: " + nombre, llamadaHijos);
+                return nodo("LLAMADA A MÉTODO", llamadaHijos);
             }
 
             List<NodoVisual> cadena = new ArrayList<>();
@@ -497,12 +570,12 @@ public class ArbolVisualizer {
     private static NodoVisual construirPrimaria(ParserRuleContext contexto, Parser parser) {
         ParserRuleContext literal = hijoDirectoPorRegla(contexto, "literal");
         if (literal != null) {
-            return construir(literal, parser, new ArrayDeque<>());
+            return construirSinEnvolver(literal, parser);
         }
 
         ParserRuleContext invocable = hijoDirectoPorRegla(contexto, "invocable");
         if (invocable != null) {
-            return construir(invocable, parser, new ArrayDeque<>());
+            return construirSinEnvolver(invocable, parser);
         }
 
         ParserRuleContext nuevaInstancia = hijoDirectoPorRegla(contexto, "nuevaInstancia");
@@ -512,15 +585,16 @@ public class ArbolVisualizer {
 
         ParserRuleContext expresion = hijoDirectoPorRegla(contexto, "expresion");
         if (expresion != null) {
-            return nodo("AGRUPACIÓN", List.of(construir(expresion, parser, new ArrayDeque<>())));
+            return nodo("AGRUPACIÓN", List.of(construirSinEnvolver(expresion, parser)));
         }
 
         return nodo("OPERANDO", List.of());
     }
 
     private static NodoVisual construirSufijo(ParserRuleContext contexto, Parser parser) {
-        if (hijoDirectoPorRegla(contexto, "argumentos") != null) {
-            return nodo("LLAMADA", List.of(construirArgumentos(hijoDirectoPorRegla(contexto, "argumentos"), parser)));
+        ParserRuleContext argumentos = hijoDirectoPorRegla(contexto, "argumentos");
+        if (argumentos != null) {
+            return nodo("ARGUMENTOS", construirArgumentos(argumentos, parser).hijos);
         }
 
         String texto = resumen(contexto, parser);
@@ -545,6 +619,139 @@ public class ArbolVisualizer {
         }
 
         return resumen(primaria, parser);
+    }
+
+    private static NodoVisual construirExpresionCompacta(ParserRuleContext contexto, Parser parser) {
+        if (contexto == null) {
+            return nodo("EXPRESIÓN", List.of());
+        }
+
+        String regla = nombreRegla(contexto, parser);
+        switch (regla) {
+            case "expresion": {
+                ParserRuleContext asignacion = hijoDirectoPorRegla(contexto, "asignacion");
+                return asignacion == null ? nodo("EXPRESIÓN", List.of()) : construirExpresionCompacta(asignacion, parser);
+            }
+            case "asignacion":
+                return construirAsignacion(contexto, parser);
+            case "logicoOr":
+                return construirCadenaBinariaMulti(contexto, parser, "logicoAnd", new String[]{"||"});
+            case "logicoAnd":
+                return construirCadenaBinariaMulti(contexto, parser, "igualdad", new String[]{"&&"});
+            case "igualdad":
+                return construirCadenaBinariaMulti(contexto, parser, "relacion", new String[]{"==", "!="});
+            case "relacion":
+                return construirCadenaBinariaMulti(contexto, parser, "suma", new String[]{">", "<", ">=", "<="});
+            case "suma":
+                return construirCadenaBinariaMulti(contexto, parser, "producto", new String[]{"+", "-"});
+            case "producto":
+                return construirCadenaBinariaMulti(contexto, parser, "unaria", new String[]{"*", "/", "%"});
+            case "unaria":
+                return construirUnaria(contexto, parser);
+            case "postfijo":
+                return construirPostfijo(contexto, parser);
+            case "primaria":
+                return construirPrimaria(contexto, parser);
+            case "literal":
+                return construirLiteral(contexto, parser);
+            case "invocable":
+                return construirInvocable(contexto, parser);
+            case "nuevaInstancia":
+                return construirNuevaInstancia(contexto, parser);
+            default:
+                return construir(contexto, parser, new ArrayDeque<>());
+        }
+    }
+
+    private static NodoVisual construirCapturarSecuencia(ParserRuleContext contexto, Parser parser) {
+        List<NodoVisual> hijos = new ArrayList<>();
+        ParserRuleContext parametro = hijoDirectoPorRegla(contexto, "parametro");
+        if (parametro != null) {
+            hijos.add(construirParametro(parametro, parser));
+        }
+
+        ParserRuleContext bloque = hijoDirectoPorRegla(contexto, "bloque");
+        if (bloque != null) {
+            hijos.add(nodo("BLOQUE CAPTURA", contenidoBloque(bloque, parser, new ArrayDeque<>())));
+        }
+
+        return nodo("CAPTURA", hijos);
+    }
+
+    private static NodoVisual construirFinalmenteSecuencia(ParserRuleContext contexto, Parser parser) {
+        ParserRuleContext bloque = hijoDirectoPorRegla(contexto, "bloque");
+        if (bloque == null) {
+            return nodo("FINALLY", List.of());
+        }
+
+        return nodo("FINALLY", List.of(nodo("BLOQUE FINAL", contenidoBloque(bloque, parser, new ArrayDeque<>()))));
+    }
+
+    private static NodoVisual construirSinEnvolver(ParserRuleContext contexto, Parser parser) {
+        if (contexto == null) {
+            return nodo("OPERANDO", List.of());
+        }
+
+        String regla = nombreRegla(contexto, parser);
+        switch (regla) {
+            case "expresion":
+                return construirExpresionCompacta(contexto, parser);
+            case "asignacion":
+                return construirAsignacion(contexto, parser);
+            case "logicoOr":
+            case "logicoAnd":
+            case "igualdad":
+            case "relacion":
+            case "suma":
+            case "producto":
+                return construirExpresionCompacta(contexto, parser);
+            case "unaria":
+                return construirUnaria(contexto, parser);
+            case "postfijo":
+                return construirPostfijo(contexto, parser);
+            case "primaria":
+                return construirPrimaria(contexto, parser);
+            case "literal":
+                return construirLiteral(contexto, parser);
+            case "invocable":
+                return construirInvocable(contexto, parser);
+            case "nuevaInstancia":
+                return construirNuevaInstancia(contexto, parser);
+            default:
+                return construir(contexto, parser, new ArrayDeque<>());
+        }
+    }
+
+    private static boolean finallyExiste(ParserRuleContext contexto) {
+        return contexto != null;
+    }
+
+    private static List<NodoVisual> contenidoBloque(ParserRuleContext bloque, Parser parser, Deque<String> ancestros) {
+        List<NodoVisual> hijos = new ArrayList<>();
+        for (int i = 0; i < bloque.getChildCount(); i++) {
+            ParseTree hijo = bloque.getChild(i);
+            if (!(hijo instanceof ParserRuleContext)) {
+                continue;
+            }
+
+            ParserRuleContext contextoHijo = (ParserRuleContext) hijo;
+            if ("instruccion".equals(nombreRegla(contextoHijo, parser))) {
+                hijos.addAll(construirHijosPromovidos(contextoHijo, parser, ancestros));
+            } else {
+                hijos.add(construir(contextoHijo, parser, ancestros));
+            }
+        }
+        return hijos;
+    }
+
+    private static ParserRuleContext primerHijoRegla(ParserRuleContext contexto, String... reglas) {
+        for (String regla : reglas) {
+            ParserRuleContext hijo = hijoDirectoPorRegla(contexto, regla);
+            if (hijo != null) {
+                return hijo;
+            }
+        }
+        return null;
     }
 
     private static NodoVisual construirModificadores(ParserRuleContext contexto, Parser parser) {
@@ -707,14 +914,18 @@ public class ArbolVisualizer {
         return nodo(simbolo, List.of());
     }
 
-    private static String alcanceVariable(Deque<String> ancestros) {
-        if (ancestros.contains("claseDecl")) {
+    private static String alcanceVariable(ParserRuleContext contexto, Deque<String> ancestros) {
+        String padre = contexto.getParent() instanceof ParserRuleContext
+            ? nombreRegla((ParserRuleContext) contexto.getParent(), null)
+            : "";
+
+        if ("miembroClase".equals(padre)) {
             return "ATRIBUTO";
         }
-        if (ancestros.contains("bloque") || ancestros.contains("instruccion_for") || ancestros.contains("instruccion_if") || ancestros.contains("instruccion_while") || ancestros.contains("instruccion_doWhile") || ancestros.contains("instruccion_tryCatch") || ancestros.contains("instruccion_switch")) {
-            return "VARIABLE LOCAL";
+        if ("declaracionGlobal".equals(padre)) {
+            return "VARIABLE GLOBAL";
         }
-        return "VARIABLE GLOBAL";
+        return "VARIABLE LOCAL";
     }
 
     private static String textoTerminalDirecto(ParserRuleContext contexto, Parser parser, int tokenType) {
