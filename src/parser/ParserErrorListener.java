@@ -3,55 +3,66 @@ import org.antlr.v4.runtime.misc.IntervalSet;
 import java.util.*;
 
 public class ParserErrorListener extends BaseErrorListener {
+
+    // Si la cantidad de tokens esperados supera este limite, se resume
+    // en lugar de listarlos todos (evita mensajes gigantes e ilegibles
+    // cuando el parser podria aceptar cualquier inicio de expresion).
+    private static final int MAX_TOKENS_LISTADOS = 6;
+
     private boolean errores = false;
+    private int totalErrores = 0;
 
     @Override
     public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine, String msg, RecognitionException e) {
         errores = true;
+        totalErrores++;
         String mensajeEs = traducirMensaje(recognizer, msg);
-        
+
         System.err.println();
-        System.err.println("┌─────────────────────────────────────────────────┐");
-        System.err.println("│           ERROR SINTÁCTICO                      │");
-        System.err.println("├─────────────────────────────────────────────────┤");
-        System.err.printf("│ Línea:       %-38d │\n", line);
-        System.err.printf("│ Columna:     %-38d │\n", charPositionInLine + 1);
-        System.err.println("├─────────────────────────────────────────────────┤");
-        System.err.println("│ Descripción: " + mensajeEs);
-        System.err.println("└─────────────────────────────────────────────────┘");
+        System.err.println("+-----------------------------------------------------+");
+        System.err.println("|           ERROR SINTACTICO #" + totalErrores);
+        System.err.println("+-----------------------------------------------------+");
+        System.err.printf("| Linea:       %-38d |\n", line);
+        System.err.printf("| Columna:     %-38d |\n", charPositionInLine + 1);
+        System.err.println("+-----------------------------------------------------+");
+        System.err.println("| Descripcion: " + mensajeEs);
+        System.err.println("+-----------------------------------------------------+");
         System.err.println();
     }
 
+    // ------------------------------------------------------------------
+    // Antes: se pegaba el fragmento crudo del mensaje de ANTLR (con
+    // comillas y llaves sin cerrar de su propia notacion de conjuntos)
+    // junto con una segunda lista ya limpia, por lo que el texto final
+    // quedaba duplicado y con simbolos sueltos.
+    // Ahora: se construye el mensaje SOLO a partir de una categoria en
+    // español (que no depende del texto interno de ANTLR) mas la lista
+    // de tokens esperados, ya limpia y resumida si es muy larga.
+    // ------------------------------------------------------------------
     private String traducirMensaje(Recognizer<?, ?> recognizer, String msg) {
+        String categoria = categorizarMensaje(msg);
         String esperado = construirEsperados(recognizer);
-        String esperadoLimpio = esperado.isEmpty() ? "" : ". Se esperaba: " + esperado;
 
-        // Traducir mensajes de error ANTLR al español
+        if (esperado.isEmpty()) {
+            return categoria;
+        }
+        return categoria + ". Se esperaba: " + esperado;
+    }
+
+    private String categorizarMensaje(String msg) {
         if (msg.contains("mismatched input")) {
-            return extraerDescripcion(msg, "entrada incorrecta") + esperadoLimpio;
+            return "entrada incorrecta";
         }
         if (msg.contains("extraneous input")) {
-            return extraerDescripcion(msg, "entrada innecesaria") + esperadoLimpio;
+            return "entrada innecesaria (sobra algo aqui)";
         }
         if (msg.contains("no viable alternative")) {
-            return esperado.isEmpty()
-                ? "no hay alternativa viable para esta entrada"
-                : "no hay alternativa viable para esta entrada. Se esperaba: " + esperado;
+            return "no hay ninguna regla valida para esta entrada";
         }
         if (msg.contains("missing")) {
-            return extraerDescripcion(msg, "falta") + esperadoLimpio;
+            return "falta un elemento obligatorio";
         }
-        return msg;
-    }
-
-    private String extraerDescripcion(String msg, String reemplazo) {
-        int inicio = msg.indexOf(' ');
-        if (inicio < 0) {
-            return reemplazo;
-        }
-        int separador = msg.indexOf(',', inicio);
-        String resto = separador >= 0 ? msg.substring(separador) : "";
-        return reemplazo + resto.replace("expecting", "se esperaba");
+        return "error de sintaxis";
     }
 
     private String construirEsperados(Recognizer<?, ?> recognizer) {
@@ -68,11 +79,20 @@ public class ParserErrorListener extends BaseErrorListener {
             if (nombre == null) {
                 continue;
             }
-            nombres.add(normalizarToken(nombre));
+            String normalizado = normalizarToken(nombre);
+            if (!normalizado.isEmpty() && !nombres.contains(normalizado)) {
+                nombres.add(normalizado);
+            }
         }
 
         if (nombres.isEmpty()) {
             return "";
+        }
+
+        if (nombres.size() > MAX_TOKENS_LISTADOS) {
+            List<String> ejemplos = nombres.subList(0, MAX_TOKENS_LISTADOS);
+            int restantes = nombres.size() - MAX_TOKENS_LISTADOS;
+            return String.join(", ", ejemplos) + " (u otras " + restantes + " opciones mas)";
         }
 
         return String.join(", ", nombres);
@@ -85,24 +105,25 @@ public class ParserErrorListener extends BaseErrorListener {
 
         String limpio = nombre.replace("'", "");
         switch (limpio) {
-            case "IDENTIFICADOR": return "identificador";
-            case "ENTERO": return "entero";
-            case "DECIMAL": return "decimal";
-            case "CADENA": return "cadena";
-            case "CARACTER": return "caracter";
+            case "IDENTIFICADOR": return "un identificador";
+            case "ENTERO": return "un entero";
+            case "DECIMAL": return "un decimal";
+            case "CADENA": return "una cadena";
+            case "CARACTER": return "un caracter";
             case "VERDADERO": return "verdadero";
             case "FALSO": return "falso";
             case "NULO": return "nulo";
-            case "PUNTO_Y_COMA": return ";";
-            case "COMA": return ",";
-            case "PUNTO": return ".";
-            case "PARENTESIS_ABIERTO": return "(";
-            case "PARENTESIS_CERRADO": return ")";
-            case "LLAVE_ABIERTA": return "{";
-            case "LLAVE_CERRADA": return "}";
-            default: return limpio.toLowerCase();
+            case "PUNTO_Y_COMA": return "';'";
+            case "COMA": return "','";
+            case "PUNTO": return "'.'";
+            case "PARENTESIS_ABIERTO": return "'('";
+            case "PARENTESIS_CERRADO": return "')'";
+            case "LLAVE_ABIERTA": return "'{'";
+            case "LLAVE_CERRADA": return "'}'";
+            default: return "'" + limpio.toLowerCase() + "'";
         }
     }
 
     public boolean tieneErrores() { return errores; }
+    public int totalErrores() { return totalErrores; }
 }

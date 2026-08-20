@@ -1,4 +1,18 @@
-entero procesar(entero a) {
-    entero b = ;
-    retornar a + b;
+clase Reportes {
+    publico entero inicio(entero a) {
+        entero b = ;
+        retornar a + b;
+    }
+
+    publico entero medio(entero x, entero y) {
+        entero suma = x + y
+        retornar suma;
+    }
+
+    publico vacio ultimo() {
+        entero contador = 0;
+        mientras (contador < 10 {
+            contador++;
+        }
+    }
 }
